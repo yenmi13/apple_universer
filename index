@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple 使用商品歷程</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            /* New Sci-fi Background */
+            background-color: #f0f2f5; /* Light, clean base */
+            background-image: 
+                /* A faint linear overlay to create a sheen */
+                linear-gradient(160deg, hsla(220, 40%, 98%, 0) 40%, hsla(220, 40%, 92%, 0.2) 55%, hsla(220, 40%, 98%, 0) 70%),
+                /* Top-left subtle purple glow */
+                radial-gradient(circle at 15% 20%, hsla(270, 50%, 95%, 0.4), transparent 30%),
+                /* Right-side subtle blue glow */
+                radial-gradient(circle at 80% 30%, hsla(210, 60%, 90%, 0.5), transparent 40%),
+                /* Bottom-left shimmer */
+                radial-gradient(ellipse at 20% 85%, hsla(0, 0%, 100%, 0.6), transparent 50%);
+            background-attachment: fixed;
+            color: #2d3748; /* cool-gray-800 */
+        }
+
+        /* Iridescent Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1); /* More transparent */
+            backdrop-filter: blur(25px); /* Slightly more blur */
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2); /* More subtle border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            z-index: -1;
+            margin: -1px; 
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(248, 250, 252, 1), rgba(226, 232, 240, 1));
+            opacity: 0.15;
+            transition: opacity 0.3s;
+        }
+
+        .glass-card:hover::before {
+            opacity: 0.3;
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* NEW Timeline styles */
+        #timeline-container {
+            position: relative;
+            padding-left: 60px;
+            padding-right: 20px;
+        }
+
+        #timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 180px; /* Moved right */
+            transform: translateX(-50%);
+            width: 2px;
+            background-color: #cbd5e1; /* cool-gray-200 */
+            border-radius: 2px;
+            z-index: 1; /* Changed to lower z-index */
+        }
+
+        .timeline-item {
+            height: 32px; /* Reduced by 50% */
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 120px; /* Moved left */
+            top: 50%; 
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background-color: #cbd5e1; /* cool-gray-300 */
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+            z-index: 2; /* Changed to higher z-index */
+            border: 2px solid white; /* Added white border for better visibility */
+        }
+
+        .timeline-year {
+            position: absolute;
+            left: 0;
+            top: 50%; /* Changed from 0 */
+            transform: translateY(-50%); /* Changed from translateY(0) */
+            font-family: 'Cormorant Garamond', serif; /* Changed from sans-serif */
+            font-size: 1.3rem; 
+            font-weight: 700;
+            color: #888888; /* Changed from #e2e8f0 */
+            transition: color 0.3s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .timeline-item.active .timeline-dot {
+            background-color: #4a5568; /* dark-gray */
+            transform: translate(-50%, -50%) scale(1.25);
+            box-shadow: 0 0 0 4px rgba(74, 85, 104, 0.2);
+        }
+
+        .timeline-item.active .timeline-year {
+            color: #4a5568; /* Changed from #a0aec0 for better contrast */
+        }
+        
+        /* Product selection styles */
+        .product-label {
+            color: #2d3748; /* cool-gray-800 */
+            font-size: 1.1rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .product-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: rgba(224, 224, 224, 0.5); /* Changed to #E0E0E0 with opacity */
+            border: 1px solid rgba(224, 224, 224, 0.8); /* Changed to #E0E0E0 with opacity */
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .product-checkbox:checked {
+             background-color: #4a5568;
+             border-color: #4a5568;
+        }
+        
+        .product-checkbox:checked::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            font-size: 14px;
+            font-weight: bold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .product-checkbox:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.3);
+        }
+        
+        /* Style the label when checkbox is checked */
+        .product-checkbox:checked + .product-label {
+            color: #1a202c; /* cool-gray-900 */
+            font-weight: 700;
+        }
+
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+            color: #4a5568;
+        }
+
+        /* NEW Selected Products Shelf */
+        #selected-products-shelf .glass-card {
+            transition: all 0.5s ease-in-out;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        #selected-products-shelf.visible .glass-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .selected-product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 1rem;
+        }
+
+        .selected-product-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+        .selected-product-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .selected-product-item svg {
+            width: 2.5rem; /* 40px */
+            height: 2.5rem; /* 40px */
+            margin-bottom: 0.25rem;
+            color: #4a5568;
+        }
+
+        .selected-product-item span {
+            font-size: 0.75rem; /* 12px */
+            line-height: 1.2;
+            color: #2d3748;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen w-full p-4 sm:p-8 flex flex-col items-center">
+
+    <div class="w-full max-w-7xl mx-auto flex-grow">
+        <header class="text-center mb-8">
+            <h1 class="text-5xl md:text-6xl font-bold tracking-wider text-gray-900">My Apple Universe</h1>
+            <p class="text-xl md:text-2xl text-gray-600 mt-2">你的 Apple 商品編年史</p>
+        </header>
+
+        <main class="flex flex-col md:flex-row gap-8 h-[calc(100vh-450px)]">
+            <!-- Timeline -->
+            <aside id="timeline-container" class="w-[210px] flex-shrink-0 overflow-y-auto custom-scrollbar">
+                <!-- Timeline items will be injected here -->
+            </aside>
+
+            <!-- Product Selection -->
+            <section id="product-grid" class="flex-grow h-full overflow-y-auto custom-scrollbar pr-4">
+                <!-- Product accordions will be injected here -->
+            </section>
+        </main>
+    </div>
+
+    <!-- NEW Selected Products Section & Analysis -->
+    <div id="selected-products-shelf" class="w-full max-w-5xl mx-auto mt-8">
+        <!-- Content will be dynamically inserted here -->
+    </div>
+
+
+    <script>
+        const productsByYear = {
+            2007: ["iPhone", "iPod Touch (1st gen)", "iMac (Aluminum)", "Apple TV (1st gen)"],
+            2008: ["iPhone 3G", "MacBook Air (1st gen)", "iPod Nano (4th gen)", "MacBook Pro (Unibody)"],
+            2009: ["iPhone 3GS", "iMac (Unibody)", "iPod Shuffle (3rd gen)", "Magic Mouse"],
+            2010: ["iPad (1st gen)", "iPhone 4", "MacBook Air (Redesigned)", "Apple TV (2nd gen)", "iPod Nano (6th gen)"],
+            2011: ["iPad 2", "iPhone 4S", "MacBook Pro with Thunderbolt"],
+            2012: ["iPhone 5", "iPad Mini (1st gen)", "iPad (3rd & 4th gen)", "MacBook Pro with Retina", "iMac (Slim)"],
+            2013: ["iPhone 5S", "iPhone 5C", "iPad Air (1st gen)", "iPad Mini 2", "Mac Pro (Cylinder)"],
+            2014: ["iPhone 6 / 6 Plus", "iPad Air 2", "iPad Mini 3", "iMac with Retina 5K"],
+            2015: ["Apple Watch (1st gen)", "MacBook (12-inch)", "iPhone 6S / 6S Plus", "iPad Pro (12.9-inch)", "iPad Mini 4", "Apple Pencil (1st gen)", "Apple TV (4th gen)"],
+            2016: ["iPhone SE (1st gen)", "iPad Pro (9.7-inch)", "iPhone 7 / 7 Plus", "AirPods (1st gen)", "Apple Watch Series 1 & 2", "MacBook Pro with Touch Bar"],
+            2017: ["iPad (5th gen)", "iPad Pro (10.5-inch & 12.9-inch)", "iPhone 8 / 8 Plus", "iPhone X", "Apple Watch Series 3", "Apple TV 4K (1st gen)", "iMac Pro"],
+            2018: ["HomePod", "iPad (6th gen)", "iPhone XS / XS Max", "iPhone XR", "Apple Watch Series 4", "iPad Pro (11-inch & 12.9-inch)", "MacBook Air (Retina)"],
+            2019: ["iPad Air (3rd gen)", "iPad Mini (5th gen)", "AirPods (2nd gen)", "iPhone 11 / Pro / Pro Max", "Apple Watch Series 5", "iPad (7th gen)", "AirPods Pro", "Mac Pro", "Pro Display XDR"],
+            2020: ["iPad Pro (4th gen)", "iPhone SE (2nd gen)", "iPad (8th gen)", "iPad Air (4th gen)", "iPhone 12 / Mini / Pro / Pro Max", "HomePod Mini", "AirPods Max", "MacBook Air (M1)", "MacBook Pro (M1)", "Mac Mini (M1)"],
+            2021: ["iPad Pro (5th gen, M1)", "iMac (M1)", "Apple TV 4K (2nd gen)", "AirTag", "iPad Mini (6th gen)", "iPhone 13 / Mini / Pro / Pro Max", "Apple Watch Series 7", "AirPods (3rd gen)", "MacBook Pro (M1 Pro/Max)"],
+            2022: ["iPhone SE (3rd gen)", "Mac Studio", "Studio Display", "iPad Air (5th gen, M1)", "MacBook Air (M2)", "iPhone 14 / Plus / Pro / Pro Max", "Apple Watch Series 8", "Apple Watch Ultra", "AirPods Pro (2nd gen)", "iPad (10th gen)", "iPad Pro (M2)", "Apple TV 4K (3rd gen)"],
+            2023: ["MacBook Pro (M2 Pro/Max)", "Mac Mini (M2/M2 Pro)", "HomePod (2nd gen)", "MacBook Air (15-inch, M2)", "Mac Studio (M2 Max/Ultra)", "Mac Pro (M2 Ultra)", "iPhone 15 / Plus / Pro / Pro Max", "Apple Watch Series 9", "Apple Watch Ultra 2", "iMac (M3)", "MacBook Pro (M3/Pro/Max)"],
+            2024: ["Apple Vision Pro", "iPad Pro (M4)", "iPad Air (M2)", "iPad mini (A17 Pro)", "MacBook Pro (14 & 16-inch, M4/Pro/Max)", "iMac (M4)", "Mac mini (M4/Pro)", "Apple Watch Series 10", "iPhone 16 / Plus / Pro / Pro Max", "Apple Pencil Pro"],
+            2025: ["iPhone 17 / Pro / Pro Max", "iPhone Air", "Apple Watch Series 11", "Apple Watch Ultra 3", "Apple Watch SE 3", "AirPods Pro (3rd gen)", "MacBook Air (13 & 15-inch, M4)"]
+        };
+
+        const timelineContainer = document.getElementById('timeline-container');
+        const productGrid = document.getElementById('product-grid');
+        const productShelf = document.getElementById('selected-products-shelf');
+        const ownedProducts = {};
+
+        const slogansByYear = {
+            2007: "This is only the beginning.",
+            2008: "The first phone to beat the iPhone.",
+            2009: "The fastest, most powerful iPhone yet.",
+            2010: "This changes everything. Again.",
+            2011: "The most amazing iPhone yet.",
+            2012: "The biggest thing to happen to iPhone since iPhone.",
+            2013: "Forward thinking.",
+            2014: "Bigger than bigger.",
+            2015: "The only thing that's changed is everything.",
+            2016: "This is 7.",
+            2017: "Say hello to the future.",
+            2018: "Welcome to the big screens.",
+            2019: "By innovation only.",
+            2020: "A leap year.",
+            2021: "Your new superpower.",
+            2022: "Pro. Beyond.",
+            2023: "Wonderlust.",
+            2024: "A new era for computing begins.",
+            2025: "A new dimension of Pro."
+        };
+
+        const svgIcons = {
+            vision: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>`,
+            phone: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`,
+            tablet: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`,
+            desktop: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="12" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="15" x2="12" y2="21"></line></svg>`,
+            laptop: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55A1 1 0 0 1 20.7 20H3.3a1 1 0 0 1-.58-1.45L4 16"></path></svg>`,
+            watch: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="5" width="10" height="14" rx="2"></rect><path d="M17 5V2a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v3"></path><path d="M17 19v3a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-3"></path></svg>`,
+            headphones: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2z"></path><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path></svg>`,
+            earbuds: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6.5a4.5 4.5 0 0 1 7.4-3.5A4.5 4.5 0 0 1 18 6.5V18a3 3 0 0 1-3 3h-1.5a3 3 0 0 1-3-3V11a.5.5 0 0 0-1 0v7a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3Z"></path></svg>`,
+            speaker: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><circle cx="12" cy="14" r="4"></circle><line x1="12" y1="6" x2="12.01" y2="6"></line></svg>`,
+            tv: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>`,
+            pencil: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`,
+            mouse: `<svg xmlns="http="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="7"></rect><path d="M12 6v4"></path></svg>`,
+            tag: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z"></path><circle cx="12" cy="12" r="1.5"></circle></svg>`,
+            default: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>`,
+        };
+
+        function getProductIcon(productName) {
+            const p = productName.toLowerCase();
+            if (p.includes('vision pro')) return svgIcons.vision;
+            if (p.includes('iphone')) return svgIcons.phone;
+            if (p.includes('macbook')) return svgIcons.laptop;
+            if (p.includes('ipad')) return svgIcons.tablet;
+            if (p.includes('imac') || p.includes('studio display')) return svgIcons.desktop;
+            if (p.includes('mac mini') || p.includes('mac studio') || p.includes('mac pro')) return svgIcons.desktop;
+            if (p.includes('watch')) return svgIcons.watch;
+            if (p.includes('airpods max')) return svgIcons.headphones;
+            if (p.includes('airpods')) return svgIcons.earbuds;
+            if (p.includes('homepod')) return svgIcons.speaker;
+            if (p.includes('apple tv')) return svgIcons.tv;
+            if (p.includes('pencil')) return svgIcons.pencil;
+            if (p.includes('mouse')) return svgIcons.mouse;
+            if (p.includes('airtag')) return svgIcons.tag;
+            return svgIcons.default;
+        }
+
+
+        function initialize() {
+            const years = Object.keys(productsByYear).reverse();
+            years.forEach(year => {
+                // Create timeline item
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item cursor-pointer';
+                timelineItem.dataset.year = year;
+                timelineItem.innerHTML = `
+                    <div class="timeline-year">${year}</div>
+                    <div class="timeline-dot"></div>
+                `;
+                timelineContainer.appendChild(timelineItem);
+
+                // Create year block
+                const yearBlock = document.createElement('div');
+                yearBlock.className = 'year-block glass-card mb-6';
+                yearBlock.id = `year-block-${year}`;
+                yearBlock.dataset.year = year;
+
+                yearBlock.innerHTML = `
+                    <div class="p-4 border-b border-white/20">
+                         <h3 class="text-3xl font-bold text-gray-800">${year}</h3>
+                    </div>
+                    <div class="px-6 py-4 grid grid-cols-2 gap-x-8 gap-y-4">
+                        ${productsByYear[year].map(product => {
+                            const uniqueId = `chk-${year}-${product.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                            return `
+                                <label for="${uniqueId}" class="flex items-center cursor-pointer group">
+                                    <input id="${uniqueId}" type="checkbox" data-year="${year}" data-product="${product}" class="product-checkbox">
+                                    <span class="product-label ml-4 group-hover:text-gray-900">${product}</span>
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                productGrid.appendChild(yearBlock);
+            });
+            setupEventListeners();
+            updateActiveTimeline();
+            updateShelfUI(); 
+        }
+
+        function setupEventListeners() {
+            // Product selection using checkboxes
+            document.querySelectorAll('.product-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const { year, product } = e.target.dataset;
+                    
+                    if (e.target.checked) {
+                        if (!ownedProducts[year]) { ownedProducts[year] = new Set(); }
+                        ownedProducts[year].add(product);
+                    } else {
+                        if (ownedProducts[year]) {
+                            ownedProducts[year].delete(product);
+                            if (ownedProducts[year].size === 0) { delete ownedProducts[year]; }
+                        }
+                    }
+                    updateShelfUI();
+                });
+            });
+
+            // Timeline click
+            document.querySelectorAll('.timeline-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const year = e.currentTarget.dataset.year;
+                    const blockToScroll = document.getElementById(`year-block-${year}`);
+                    if (blockToScroll) {
+                        blockToScroll.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            productGrid.addEventListener('scroll', updateActiveTimeline);
+        }
+        
+        function updateActiveTimeline() {
+            let activeYear = null;
+            const scrollContainerTop = productGrid.getBoundingClientRect().top;
+            
+            document.querySelectorAll('.year-block').forEach(accordion => {
+                const accordionTop = accordion.getBoundingClientRect().top;
+                if (accordionTop <= scrollContainerTop + 50) { // 50px offset
+                    activeYear = accordion.dataset.year;
+                }
+            });
+
+            document.querySelectorAll('.timeline-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.year === activeYear);
+            });
+        }
+
+        function updateShelfUI() {
+            const allProducts = Object.values(ownedProducts).flatMap(set => Array.from(set));
+            
+            const titleHTML = `<h3 class="text-2xl font-bold text-left text-gray-700 mb-2 pt-4">你擁有的apple寶寶們</h3>`;
+            const countHTML = `<p class="text-left text-gray-500 mb-4">總共 ${allProducts.length} 個apple產品</p>`;
+            
+            let productGridHTML = '';
+            let analysisContentHTML = '';
+
+            if (allProducts.length > 0) {
+                analysisContentHTML = `
+                    <div class="text-center">
+                         <button id="analyze-btn" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-xl">
+                            選好後分析你的果粉人格
+                        </button>
+                    </div>`;
+
+                const productItems = allProducts.map(product => `
+                    <div class="selected-product-item">
+                        ${getProductIcon(product)}
+                        <span>${product}</span>
+                    </div>
+                `).join('');
+                productGridHTML = `<div class="selected-product-grid">${productItems}</div>`;
+
+            } else {
+                analysisContentHTML = `
+                    <div class="text-center h-full flex flex-col justify-center items-center">
+                        <button class="bg-gray-400 text-white font-bold py-4 px-8 rounded-lg shadow-lg text-xl cursor-not-allowed" disabled>
+                            選好後分析你的果粉人格
+                        </button>
+                        <p class="text-gray-500 text-sm mt-2">請先從上方選擇你擁有的產品！</p>
+                    </div>`;
+
+                productGridHTML = `
+                    <div class="flex items-center justify-center text-gray-500 text-lg h-full p-8 border-2 border-dashed border-gray-400/50 rounded-xl">
+                       <span>還沒有選擇任何產品喔！</span>
+                    </div>`;
+            }
+
+            const shelfHTML = `
+            <div class="glass-card p-6">
+                <div>
+                    ${titleHTML}
+                    ${countHTML}
+                </div>
+                <div class="flex flex-col md:flex-row gap-8 mt-4">
+                    <div class="md:w-3/5">
+                        ${productGridHTML}
+                    </div>
+                    <div class="md:w-2/5 flex flex-col items-center justify-center">
+                         <div id="analysis-container" class="w-full">
+                            ${analysisContentHTML}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+            
+            productShelf.innerHTML = shelfHTML;
+            productShelf.classList.add('visible');
+            
+            if (allProducts.length > 0) {
+                document.getElementById('analyze-btn').addEventListener('click', triggerAIAnalysis);
+            }
+        }
+
+        async function triggerAIAnalysis() {
+            const allProducts = Object.values(ownedProducts).flatMap(set => Array.from(set));
+            if (allProducts.length === 0) return;
+            
+            const analysisContainer = document.getElementById('analysis-container');
+            if (!analysisContainer) return;
+
+            analysisContainer.innerHTML = `
+                <div class="text-center">
+                    <div class="flex items-center justify-center">
+                        <svg class="spinner w-8 h-8 text-gray-700 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <h2 class="text-3xl font-bold text-gray-800">AI 正在深入你的數位靈魂...</h2>
+                    </div>
+                </div>`;
+
+            const apiKey = ""; // Canvas will provide the key
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            const systemPrompt = "你是一位風趣幽默的科技評論家，專門分析人們的消費習慣和個性。你的語氣應該是輕鬆、有趣且帶有科技宅男感。請根據使用者擁有的 Apple 產品清單（包含年份）以及對應年份的 Apple 官方標語，為他們生成一段約 100-150 字的獨特人格分析，並給予一個有趣的稱號。你的分析需要做到：1. 將使用者擁有的產品年份與該年標語巧妙結合。2. 根據產品的屬性（如 Pro 型號、便攜性、影音功能等）推斷並分析使用者的興趣。你的回覆格式應該是：第一行為稱號（用粗體 H1 標題），第二行為分析內容（用段落 P 標籤）。請用繁體中文回答。";
+            
+            const selectedProductsAndSlogans = {};
+            for (const year in ownedProducts) {
+                if (ownedProducts[year].size > 0) {
+                    selectedProductsAndSlogans[year] = {
+                        products: Array.from(ownedProducts[year]),
+                        slogan: slogansByYear[year] || "一個神秘的年份"
+                    };
+                }
+            }
+
+            const userQuery = `這是我擁有的 Apple 產品清單與對應年份的標語：${JSON.stringify(selectedProductsAndSlogans, null, 2)}。請根據這些資訊，分析我的果粉人格與興趣。`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API 請求失敗，狀態碼： ${response.status}`);
+                }
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                let analysisText = candidate?.content?.parts?.[0]?.text || "抱歉，AI 腦袋當機了，請稍後再試一次！";
+
+                if (!analysisText.includes('<h1>') && !analysisText.includes('<p>')) {
+                   const lines = analysisText.split('\n');
+                   const title = lines[0] || '神秘果粉';
+                   const description = lines.slice(1).join('\n') || 'AI 無法參透你的思維...';
+                   analysisText = `<h1 class="text-4xl font-bold mb-3 tracking-tight text-gray-900">${title}</h1><p class="text-gray-600 text-lg max-w-2xl mx-auto">${description}</p>`;
+                } else {
+                     analysisText = analysisText.replace(/<h1>/g, '<h1 class="text-4xl font-bold mb-3 tracking-tight text-gray-900">').replace(/<h2>/g, '<h1 class="text-4xl font-bold mb-3 tracking-tight text-gray-900">').replace(/<p>/g, '<p class="text-gray-600 text-lg max-w-2xl mx-auto">');
+                }
+                
+                const resultHTML = `
+                    <div class="text-center transition-all duration-500 opacity-0 transform translate-y-4">
+                        ${analysisText}
+                    </div>`;
+
+                analysisContainer.innerHTML = resultHTML;
+
+                setTimeout(() => {
+                    const finalCard = analysisContainer.querySelector('div');
+                    if (finalCard) {
+                        finalCard.classList.remove('opacity-0', 'translate-y-4');
+                    }
+                }, 50);
+
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                analysisContainer.innerHTML = `
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold mb-2 text-red-500">分析失敗</h2>
+                        <p class="text-gray-500 text-lg">無法連接到 AI 大腦。請檢查你的網路連線或稍後再試。</p>
+                    </div>`;
+            }
+        }
+
+        initialize();
+
+    </script>
+</body>
+</html>
+
+
