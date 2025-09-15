@@ -59,15 +59,15 @@
             width: 8px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
+            background: #f1f1f1;
             border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
+            background: #E0E0E0;
             border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.3);
+            background: #D3D3D3;
         }
         
         /* NEW Timeline styles */
@@ -75,6 +75,7 @@
             position: relative;
             padding-left: 60px;
             padding-right: 20px;
+            min-height: 100px;  /* 將時間軸高度降低到100px */
         }
 
         #timeline-container::before {
@@ -91,10 +92,11 @@
         }
 
         .timeline-item {
-            height: 32px; /* Reduced by 50% */
+            height: 28px; /* 減少每個時間點的高度 */
             position: relative;
             display: flex;
             align-items: center;
+            margin-bottom: 2px; /* 減少底部間距 */
         }
 
         .timeline-dot {
@@ -245,7 +247,9 @@
                 overflow: hidden;
             }
             header h1 {
-                font-size: 2.25rem; /* Override text-5xl */
+                font-size: 1.875rem; /* Smaller font size for mobile */
+                line-height: 1.2; /* Tighter line height */
+                white-space: nowrap; /* Keep title in one line */
             }
             header p {
                 font-size: 1.125rem; /* Override text-xl */
