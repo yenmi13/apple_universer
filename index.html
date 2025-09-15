@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>你的Aple商品編年史</title>
+    <title>你的Apple商品編年史</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -203,7 +203,8 @@
             margin-top: auto;
             position: relative;
             z-index: 10;
-            height: 230px; /* 初始高度 */
+            height: 230px; /* 固定高度，選取前後不變 */
+            overflow-y: auto; /* 內部捲軸，內容超出時捲動 */
         }
 
         #selected-products-shelf.visible .glass-card {
@@ -212,8 +213,24 @@
         }
 
         /* 當有商品被選中時，卡片長高 */
+        /* 保持展開狀態與預設高度一致，避免壓縮上方版面 */
         #selected-products-shelf.expanded .glass-card {
-            height: 400px;
+            height: 230px; /* 與預設高度相同，內容以內部捲軸處理 */
+        }
+        /* 強制置中 header 與按鈕 */
+        #selected-products-shelf .glass-card .flex.flex-col.justify-center.items-center,
+        #selected-products-shelf .glass-card .flex.flex-col.justify-center.items-center > div {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            text-align: center !important;
+            width: 100% !important;
+        }
+        /* Button centering safety for enabled/disabled states */
+        #selected-products-shelf .glass-card button {
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: inline-block !important;
         }
 
 
@@ -320,9 +337,26 @@
             #selected-products-shelf .glass-card > .flex > div {
                 width: 100%; /* Override md:w-3/5 and md:w-2/5 */
             }
-             /* 針對手機版調整卡片高度 */
+            
+            /* --- ✨ 手機版魔法：讓產品列可以左右滑動 --- */
+            .selected-product-grid {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 1rem; /* 給卷軸留點空間 */
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
+            }
+            .selected-product-grid::-webkit-scrollbar {
+                display: none; /* 隱藏醜醜的卷軸，但還是可以滑動 */
+            }
+            .selected-product-item {
+                flex-shrink: 0; /* 確保每個項目寬度不會被壓縮 */
+            }
+            /* 手機：不要在選取後增加卡片高度，維持和桌面相同的固定高度，內容由內部捲軸處理 */
             #selected-products-shelf.expanded .glass-card {
-                height: 50vh; 
+                height: 230px; /* 手機也固定高度，避免展開 */
+                overflow-y: auto;
             }
         }
 
@@ -331,9 +365,11 @@
 <body class="min-h-screen w-full p-4 sm:p-8 flex flex-col items-center overflow-x-hidden">
 
     <div class="w-full max-w-7xl mx-auto flex flex-col h-screen">
-        <header class="text-center mb-4 flex-shrink-0">
-            <h1 class="text-4xl md:text-5xl font-bold tracking-wider text-gray-900">My Apple Universe</h1>
-            <p class="text-base md:text-lg text-gray-600 mt-1">你的 Apple 商品編年史</p>
+        <header class="flex flex-col md:flex-row items-center justify-center text-center md:text-left mb-4 flex-shrink-0 gap-4">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold tracking-wider text-gray-900">My Apple Universe</h1>
+                <p class="text-base md:text-lg text-gray-600 mt-1">你的 Apple 商品編年史</p>
+            </div>
         </header>
 
         <main class="flex flex-col md:flex-row gap-8 flex-grow overflow-hidden">
@@ -463,10 +499,13 @@
                 yearBlock.className = 'year-block glass-card mb-6';
                 yearBlock.id = `year-block-${year}`;
                 yearBlock.dataset.year = year;
+                
+                const slogan = slogansByYear[year] || '';
 
                 yearBlock.innerHTML = `
-                    <div class="p-4 border-b border-white/20">
-                         <h3 class="text-3xl font-bold text-gray-800">${year}</h3>
+                    <div class="p-4 border-b border-white/20 flex items-baseline gap-4">
+                         <h3 class="text-3xl font-bold text-gray-800 flex-shrink-0">${year}</h3>
+                         ${slogan ? `<p class="text-lg text-gray-500 italic">"${slogan}"</p>` : ''}
                     </div>
                     <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                         ${productsByYear[year].map(product => {
@@ -539,18 +578,18 @@
         function updateShelfUI() {
             const allProducts = Object.values(ownedProducts).flatMap(set => Array.from(set));
             
-            const titleHTML = `<h3 class="text-2xl font-bold text-left text-gray-700 mb-2 pt-4">你擁有的apple寶寶們</h3>`;
-            const countHTML = `<p class="text-left text-gray-500 mb-4">總共 ${allProducts.length} 個apple產品</p>`;
+            const titleHTML = `<h3 class="text-2xl font-bold text-center text-gray-700">你擁有過的 ${allProducts.length} 項apple產品</h3>`;
             
-            let productGridHTML = '';
-            let analysisContentHTML = '';
+            let shelfBodyHTML = '';
+            let buttonHTML = '';
 
             if (allProducts.length > 0) {
-                analysisContentHTML = `
-                    <div class="text-center">
-                         <button id="analyze-btn" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-xl">
-                            選好後分析你的果粉人格
-                        </button>
+                // Button for card header
+                buttonHTML = `<button id="analyze-btn" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-lg">分析你的果粉人格</button>`;
+
+                // Analysis placeholder for shelf
+                const analysisContentHTML = `
+                    <div class="text-center h-full flex flex-col justify-center items-center">
                     </div>`;
 
                 const productItems = allProducts.map(product => `
@@ -559,29 +598,9 @@
                         <span>${product}</span>
                     </div>
                 `).join('');
-                productGridHTML = `<div class="selected-product-grid">${productItems}</div>`;
+                const productGridHTML = `<div class="selected-product-grid">${productItems}</div>`;
 
-            } else {
-                analysisContentHTML = `
-                    <div class="text-center h-full flex flex-col justify-center items-center">
-                        <button class="bg-gray-400 text-white font-bold py-4 px-8 rounded-lg shadow-lg text-xl cursor-not-allowed" disabled>
-                            選好後分析你的果粉人格
-                        </button>
-                        <p class="text-gray-500 text-sm mt-2">請先從上方選擇你擁有的產品！</p>
-                    </div>`;
-
-                productGridHTML = `
-                    <div class="flex items-center justify-center text-gray-500 text-lg h-full p-8 border-2 border-dashed border-gray-400/50 rounded-xl">
-                       <span>還沒有選擇任何產品喔！</span>
-                    </div>`;
-            }
-
-            const shelfHTML = `
-            <div class="glass-card p-6 overflow-y-auto custom-scrollbar">
-                <div>
-                    ${titleHTML}
-                    ${countHTML}
-                </div>
+                shelfBodyHTML = `
                 <div class="flex flex-col md:flex-row gap-8 mt-4">
                     <div class="md:w-3/5">
                         ${productGridHTML}
@@ -591,6 +610,31 @@
                             ${analysisContentHTML}
                         </div>
                     </div>
+                </div>`;
+
+            } else {
+                 // Disabled button for card header
+                buttonHTML = `<button class="bg-gray-400 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-lg cursor-not-allowed" disabled>分析你的果粉人格</button>`;
+
+                shelfBodyHTML = `
+                    <div class="flex items-center justify-center text-gray-500 text-lg h-full p-8 border-2 border-dashed border-gray-400/50 rounded-xl">
+                       <span>還沒有選擇任何產品喔！</span>
+                    </div>`;
+            }
+
+            // --- RENDER SHELF ---
+            const shelfHTML = `
+            <div class="glass-card p-6 flex flex-col overflow-y-auto custom-scrollbar">
+                <div class="flex flex-col justify-center items-center mb-4 gap-4 flex-shrink-0">
+                    <div>
+                        ${titleHTML}
+                    </div>
+                    <div>
+                        ${buttonHTML}
+                    </div>
+                </div>
+                <div class="flex-grow min-h-0">
+                    ${shelfBodyHTML}
                 </div>
             </div>
             `;
@@ -598,10 +642,13 @@
             productShelf.innerHTML = shelfHTML;
             productShelf.classList.add('visible');
             
-            // --- ✨ 新增部分: 根據商品數量決定是否展開卡片 ---
+            // --- ADD EVENT LISTENER & EXPAND CARD ---
             if (allProducts.length > 0) {
                 productShelf.classList.add('expanded');
-                document.getElementById('analyze-btn').addEventListener('click', triggerAIAnalysis);
+                const analyzeBtn = document.getElementById('analyze-btn');
+                if (analyzeBtn) {
+                    analyzeBtn.addEventListener('click', triggerAIAnalysis);
+                }
             } else {
                 productShelf.classList.remove('expanded');
             }
@@ -769,3 +816,6 @@
     </script>
 </body>
 </html>
+
+
+
