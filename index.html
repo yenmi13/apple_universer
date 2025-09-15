@@ -55,8 +55,13 @@
         }
 
         /* Custom Scrollbar */
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #E0E0E0 #f1f1f1;
+        }
         .custom-scrollbar::-webkit-scrollbar {
             width: 8px;
+            display: block;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
             background: #f1f1f1;
@@ -65,6 +70,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #E0E0E0;
             border-radius: 10px;
+            min-height: 40px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #D3D3D3;
@@ -563,7 +569,7 @@
             }
 
             const shelfHTML = `
-            <div class="glass-card p-6 max-h-[400px] overflow-y-auto custom-scrollbar">
+            <div class="glass-card p-6 max-h-[400px] overflow-y-scroll custom-scrollbar">
                 <div>
                     ${titleHTML}
                     ${countHTML}
