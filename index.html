@@ -241,6 +241,8 @@
         @media (max-width: 767px) {
             body {
                 padding: 1rem;
+                height: 100vh;
+                overflow: hidden;
             }
             header h1 {
                 font-size: 2.25rem; /* Override text-5xl */
@@ -249,7 +251,6 @@
                 font-size: 1.125rem; /* Override text-xl */
             }
             main {
-                height: auto !important; /* Override inline style */
                 flex-direction: column; /* Already set, but good to be explicit */
                 gap: 1rem;
             }
@@ -307,27 +308,28 @@
 </head>
 <body class="min-h-screen w-full p-4 sm:p-8 flex flex-col items-center">
 
-    <div class="w-full max-w-7xl mx-auto flex-grow">
-        <header class="text-center mb-8">
+    <div class="w-full max-w-7xl mx-auto flex flex-col h-screen">
+        <header class="text-center mb-8 flex-shrink-0">
             <h1 class="text-5xl md:text-6xl font-bold tracking-wider text-gray-900">My Apple Universe</h1>
             <p class="text-xl md:text-2xl text-gray-600 mt-2">你的 Apple 商品編年史</p>
         </header>
 
-        <main class="flex flex-col md:flex-row gap-8 h-[calc(100vh-450px)]">
+        <main class="flex flex-col md:flex-row gap-8 flex-grow overflow-hidden">
             <!-- Timeline -->
             <aside id="timeline-container" class="w-[210px] flex-shrink-0 overflow-y-auto custom-scrollbar">
                 <!-- Timeline items will be injected here -->
             </aside>
 
             <!-- Product Selection -->
-            <section id="product-grid" class="flex-grow h-full overflow-y-auto custom-scrollbar pr-4">
+            <section id="product-grid" class="flex-grow overflow-y-auto custom-scrollbar pr-4">
                 <!-- Product accordions will be injected here -->
             </section>
         </main>
-    </div>
 
-    <!-- NEW Selected Products Section & Analysis -->
-    <div id="selected-products-shelf" class="w-full max-w-5xl mx-auto mt-8">
+        <!-- Fixed bottom section -->
+        <div class="flex-shrink-0 py-8">
+            <!-- NEW Selected Products Section & Analysis -->
+            <div id="selected-products-shelf" class="w-full max-w-5xl mx-auto"
         <!-- Content will be dynamically inserted here -->
     </div>
 
