@@ -255,26 +255,82 @@
         @media (max-width: 767px) {
             body {
                 padding: 1rem;
+                height: 100vh;
+                overflow: hidden;
             }
             header h1 {
-                font-size: 2.25rem; /* Override text-5xl */
+                font-size: 1.875rem; /* Smaller font size for mobile */
+                line-height: 1.2; /* Tighter line height */
+                white-space: nowrap; /* Keep title in one line */
             }
             header p {
                 font-size: 1.125rem; /* Override text-xl */
             }
             main {
-                flex-direction: column;
+                flex-direction: column; /* Already set, but good to be explicit */
                 gap: 1rem;
+            }
+            aside#timeline-container {
+                width: 100%;
                 height: auto;
-            }    </style>
-</head>
-<body class="min-h-screen w-full p-4 sm:p-8 flex flex-col items-center">
+                flex-shrink: 1;
+                overflow-y: hidden;
+                overflow-x: auto;
+                display: flex;
+                flex-direction: row;
+                padding: 0.5rem 0;
+                align-items: center;
+                padding-left: 20px; /* Reset desktop padding */
+            }
+            #timeline-container::before {
+                display: none; /* Hide the vertical line on mobile */
+            }
+            .timeline-item {
+                height: auto;
+                min-width: 70px;
+                justify-content: center;
+                flex-direction: column;
+            }
+            .timeline-year {
+                position: static;
+                transform: none;
+                font-size: 1rem;
+                margin-bottom: 0.5rem;
+            }
+            .timeline-dot {
+                position: static;
+                transform: none;
+                left: auto;
+            }
+            section#product-grid {
+                height: auto;
+                max-height: 60vh;
+                padding-right: 0;
+            }
+            .year-block .grid {
+                grid-template-columns: repeat(1, minmax(0, 1fr)); /* Override grid-cols-2 */
+            }
+            /* Target the container inside the shelf */
+            #selected-products-shelf .glass-card > .flex {
+                flex-direction: column; /* Override md:flex-row */
+            }
+            /* Target the columns inside that container */
+            #selected-products-shelf .glass-card > .flex > div {
+                width: 100%; /* Override md:w-3/5 and md:w-2/5 */
+            }
+        }
 
-    <div class="w-full max-w-7xl mx-auto flex flex-col">
-        <header class="text-center mb-4">
+    </style>
+</head>
+<body class="min-h-screen w-full p-4 sm:p-8 flex flex-col items-center overflow-x-hidden">
+
+    <div class="w-full max-w-7xl mx-auto flex flex-col h-screen">
+                <header class="text-center mb-4 flex-shrink-0">
             <h1 class="text-4xl md:text-5xl font-bold tracking-wider text-gray-900">My Apple Universe</h1>
             <p class="text-base md:text-lg text-gray-600 mt-1">你的 Apple 商品編年史</p>
-        </header>        <main class="flex flex-col md:flex-row gap-8 h-[400px]">
+        </header>
+
+        <main class="flex flex-col md:flex-row gap-8 h-[400px]">
             <!-- Timeline -->
             <aside id="timeline-container" class="w-[210px] flex-shrink-0 overflow-y-auto custom-scrollbar">
                 <!-- Timeline items will be injected here -->
@@ -513,7 +569,7 @@
             }
 
             const shelfHTML = `
-            <div class="glass-card p-6" style="height: 400px; overflow-y: scroll;">
+            <div class="glass-card p-6 max-h-[400px] overflow-y-scroll custom-scrollbar">
                 <div>
                     ${titleHTML}
                     ${countHTML}
