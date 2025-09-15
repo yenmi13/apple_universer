@@ -197,7 +197,7 @@
 
         /* --- ✨ 新增部分: 卡片伸縮的魔法 --- */
         #selected-products-shelf .glass-card {
-            transition: all 0.5s ease-in-out, height 0.4s ease-in-out; /* 加上 height 的過渡動畫 */
+            transition: all 0.5s ease-in-out; /* 移除 height 的過渡動畫 */
             opacity: 0;
             transform: translateY(20px);
             margin-top: auto;
@@ -326,7 +326,7 @@
                 max-height: 60vh;
                 padding-right: 0;
             }
-            .year-block .grid {
+            .year-block .grid x{
                 grid-template-columns: repeat(1, minmax(0, 1fr)); /* Override grid-cols-2 */
             }
             /* Target the container inside the shelf */
@@ -355,7 +355,7 @@
             }
             /* 手機：卡片固定高度與桌面一致，內容由內部捲軸處理 */
             #selected-products-shelf.expanded .glass-card {
-                height: 250px; /* 手機也固定高度 */
+                height: 300px; /* 手機也固定高度 */
                 overflow-y: auto;
             }
         }
@@ -817,6 +817,3 @@
     </script>
 </body>
 </html>
-
-
-
