@@ -76,7 +76,7 @@
             position: relative;
             padding-left: 60px;
             padding-right: 20px;
-            min-height: 100px;
+            min-height: 50px;
         }
 
         #timeline-container::before {
@@ -195,42 +195,20 @@
             color: #4a5568;
         }
 
-        /* --- ✨ 新增部分: 卡片伸縮的魔法 --- */
+       /* --- ✨ 新增部分: 卡片伸縮的魔法 --- */
         #selected-products-shelf .glass-card {
-            transition: all 0.5s ease-in-out; /* 移除 height 的過渡動畫 */
             opacity: 0;
-            transform: translateY(20px);
-            margin-top: auto;
             position: relative;
             z-index: 10;
-            height: 300px; /* 固定高度，選取前後不變 */
+            height: 280px; /* 固定高度，選取前後不變 */
             overflow-y: auto; /* 內部捲軸，內容超出時捲動 */
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: translateY(20px);
         }
 
         #selected-products-shelf.visible .glass-card {
             opacity: 1;
             transform: translateY(0);
-        }
-
-        /* 當有商品被選中時，卡片長高 */
-        /* 保持展開狀態與預設高度一致，避免壓縮上方版面 */
-        #selected-products-shelf.expanded .glass-card {
-            height: 300px; /* 與預設高度一致，內容以內部捲軸處理 */
-        }
-        /* 強制置中 header 與按鈕 */
-        #selected-products-shelf .glass-card .flex.flex-col.justify-center.items-center,
-        #selected-products-shelf .glass-card .flex.flex-col.justify-center.items-center > div {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            text-align: center !important;
-            width: 100% !important;
-        }
-        /* Button centering safety for enabled/disabled states */
-        #selected-products-shelf .glass-card button {
-            margin-left: auto !important;
-            margin-right: auto !important;
-            display: inline-block !important;
         }
 
 
@@ -297,36 +275,53 @@
                 overflow-x: auto;
                 display: flex;
                 flex-direction: row;
-                padding: 0.5rem 0;
-                align-items: center;
+                padding: 2rem 0; /* 增加垂直空間給年份文字 */
+                align-items: center; /* 垂直置中圓點 */
                 padding-left: 20px; /* Reset desktop padding */
+                position: relative; /* For the horizontal timeline */
             }
             #timeline-container::before {
-                display: none; /* Hide the vertical line on mobile */
+                /* Was display: none, now it's a horizontal line */
+                content: '';
+                position: absolute;
+                top: 50%; /* 精準置中 */
+                left: 0;
+                width: 2500px; /* Super long width to cover all scrollable items */
+                height: 2px;
+                background-color: #cbd5e1; /* cool-gray-200 */
+                transform: translateY(-50%);
+                z-index: 1; /* Behind the dots and text */
             }
             .timeline-item {
                 height: auto;
                 min-width: 70px;
                 justify-content: center;
-                flex-direction: column;
+                flex-direction: row; /* 改為 row */
+                position: relative; /* For z-index to work */
+                z-index: 2; /* To sit on top of the line */
             }
             .timeline-year {
-                position: static;
-                transform: none;
+                position: absolute; /* 絕對定位，脫離文檔流 */
+                bottom: 100%; /* 移到圓點上方 */
+                left: 50%;
+                transform: translateX(-50%);
+                margin-bottom: 0.5rem; /* 與圓點的間距 */
                 font-size: 1rem;
-                margin-bottom: 0.5rem;
+                background-color: #f0f2f5; /* Match body background to hide line */
+                padding: 0 0.25rem; /* Give text some space */
             }
             .timeline-dot {
-                position: static;
+                position: static; /* 保持在文檔流中，讓 align-items 生效 */
                 transform: none;
                 left: auto;
+                border: 3px solid #f0f2f5; /* To punch a "hole" in the line */
             }
             section#product-grid {
                 height: auto;
                 max-height: 60vh;
                 padding-right: 0;
             }
-            .year-block .grid x{
+            .year-block .grid {
                 grid-template-columns: repeat(1, minmax(0, 1fr)); /* Override grid-cols-2 */
             }
             /* Target the container inside the shelf */
@@ -353,10 +348,8 @@
             .selected-product-item {
                 flex-shrink: 0; /* 確保每個項目寬度不會被壓縮 */
             }
-            /* 手機：卡片固定高度與桌面一致，內容由內部捲軸處理 */
-            #selected-products-shelf.expanded .glass-card {
-                height: 300px; /* 手機也固定高度 */
-                overflow-y: auto;
+            #selected-products-shelf .glass-card {
+                height: 300px !important; /* 手機版固定高度 */
             }
         }
 
@@ -585,7 +578,7 @@
 
             if (allProducts.length > 0) {
                 // Button for card header
-                buttonHTML = `<button id="analyze-btn" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-lg">分析你的果粉人格</button>`;
+                buttonHTML = `<div style="display:flex;justify-content:center;"><button id="analyze-btn" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-lg">分析你的果粉人格</button></div>`;
 
                 // Analysis placeholder for shelf
                 const analysisContentHTML = `
@@ -614,7 +607,7 @@
 
             } else {
                  // Disabled button for card header
-                buttonHTML = `<button class="bg-gray-400 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-lg cursor-not-allowed" disabled>分析你的果粉人格</button>`;
+                buttonHTML = `<div style="display:flex;justify-content:center;"><button class="bg-gray-400 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-lg cursor-not-allowed" disabled>分析你的果粉人格</button></div>`;
 
                 shelfBodyHTML = `
                     <div class="flex items-center justify-center text-gray-500 text-lg h-full p-8 border-2 border-dashed border-gray-400/50 rounded-xl">
@@ -624,7 +617,7 @@
 
             // --- RENDER SHELF ---
             const shelfHTML = `
-            <div class="glass-card p-6 flex flex-col overflow-y-auto custom-scrollbar">
+            <div class="glass-card p-6 flex flex-col custom-scrollbar">
                 <div class="flex flex-col justify-center items-center mb-4 gap-4 flex-shrink-0">
                     <div>
                         ${titleHTML}
@@ -643,18 +636,13 @@
             productShelf.classList.add('visible');
             
             // --- ADD EVENT LISTENER & EXPAND CARD ---
-            if (allProducts.length > 0) {
-                productShelf.classList.add('expanded');
-                const analyzeBtn = document.getElementById('analyze-btn');
-                if (analyzeBtn) {
-                    analyzeBtn.addEventListener('click', triggerAIAnalysis);
-                }
-            } else {
-                productShelf.classList.remove('expanded');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            if (analyzeBtn && !analyzeBtn.disabled) {
+                analyzeBtn.addEventListener('click', triggerAIAnalysis);
             }
         }
 
-                // 預設的 20 個分析結果
+        // 預設的 20 個分析結果
         const predefinedAnalyses = [
             {
                 title: "蘋果生態系統收藏家",
@@ -765,7 +753,7 @@
                 
                 // 根據產品特徵選擇分析結果
                 const hasWatch = allProducts.some(p => p.toLowerCase().includes('watch'));
-                const hasProProducts = allProducts.some(p => p.toLowerCase().includes('pro'));
+                const hasProProducts = all-products.some(p => p.toLowerCase().includes('pro'));
                 const hasAirPods = allProducts.some(p => p.toLowerCase().includes('airpods'));
                 const hasHomePod = allProducts.some(p => p.toLowerCase().includes('homepod'));
                 const hasAppleTV = allProducts.some(p => p.toLowerCase().includes('apple tv'));
@@ -817,3 +805,4 @@
     </script>
 </body>
 </html>
+
