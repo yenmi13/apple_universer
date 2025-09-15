@@ -213,6 +213,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             gap: 1rem;
+            width: 100%;
         }
 
         .selected-product-item {
@@ -221,9 +222,11 @@
             align-items: center;
             text-align: center;
             background: rgba(255, 255, 255, 0.1);
-            padding: 0.5rem;
+            padding: 0.25rem;
             border-radius: 12px;
             transition: background 0.2s;
+            min-width: 80px;
+            height: 80px;
         }
         .selected-product-item:hover {
             background: rgba(255, 255, 255, 0.2);
@@ -560,7 +563,7 @@
             }
 
             const shelfHTML = `
-            <div class="glass-card p-6">
+            <div class="glass-card p-6 max-h-[400px] overflow-y-auto custom-scrollbar">
                 <div>
                     ${titleHTML}
                     ${countHTML}
