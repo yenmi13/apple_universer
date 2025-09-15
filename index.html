@@ -54,26 +54,21 @@
             opacity: 0.3;
         }
 
-        /* Custom Scrollbar */
-        .custom-scrollbar {
-            scrollbar-width: thin;
-            scrollbar-color: #E0E0E0 #f1f1f1;
-        }
+        /* --- ✨ 修改部分: 卷軸顏色加深 --- */
         .custom-scrollbar::-webkit-scrollbar {
             width: 8px;
-            display: block;
+            height: 8px; /* 加上高度給水平卷軸 */
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: rgba(226, 232, 240, 0.5); /* 軌道顏色調淡一點 */
             border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #E0E0E0;
+            background: #a0aec0; /* 卷軸顏色加深 (cool-gray-400) */
             border-radius: 10px;
-            min-height: 40px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #D3D3D3;
+            background: #718096; /* 滑鼠移上去時變得更深 (cool-gray-500) */
         }
         
         /* NEW Timeline styles */
@@ -81,7 +76,7 @@
             position: relative;
             padding-left: 60px;
             padding-right: 20px;
-            min-height: 100px;  /* 將時間軸高度降低到100px */
+            min-height: 100px;
         }
 
         #timeline-container::before {
@@ -200,20 +195,27 @@
             color: #4a5568;
         }
 
-        /* NEW Selected Products Shelf */
+        /* --- ✨ 新增部分: 卡片伸縮的魔法 --- */
         #selected-products-shelf .glass-card {
-            transition: all 0.5s ease-in-out;
+            transition: all 0.5s ease-in-out, height 0.4s ease-in-out; /* 加上 height 的過渡動畫 */
             opacity: 0;
             transform: translateY(20px);
             margin-top: auto;
             position: relative;
             z-index: 10;
+            height: 230px; /* 初始高度 */
         }
 
         #selected-products-shelf.visible .glass-card {
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* 當有商品被選中時，卡片長高 */
+        #selected-products-shelf.expanded .glass-card {
+            height: 400px;
+        }
+
 
         .selected-product-grid {
             display: grid;
@@ -318,6 +320,10 @@
             #selected-products-shelf .glass-card > .flex > div {
                 width: 100%; /* Override md:w-3/5 and md:w-2/5 */
             }
+             /* 針對手機版調整卡片高度 */
+            #selected-products-shelf.expanded .glass-card {
+                height: 50vh; 
+            }
         }
 
     </style>
@@ -325,14 +331,14 @@
 <body class="min-h-screen w-full p-4 sm:p-8 flex flex-col items-center overflow-x-hidden">
 
     <div class="w-full max-w-7xl mx-auto flex flex-col h-screen">
-                <header class="text-center mb-4 flex-shrink-0">
+        <header class="text-center mb-4 flex-shrink-0">
             <h1 class="text-4xl md:text-5xl font-bold tracking-wider text-gray-900">My Apple Universe</h1>
             <p class="text-base md:text-lg text-gray-600 mt-1">你的 Apple 商品編年史</p>
         </header>
 
-        <main class="flex flex-col md:flex-row gap-8 h-[400px]">
+        <main class="flex flex-col md:flex-row gap-8 flex-grow overflow-hidden">
             <!-- Timeline -->
-            <aside id="timeline-container" class="w-[210px] flex-shrink-0 overflow-y-auto custom-scrollbar">
+            <aside id="timeline-container" class="w-full md:w-[210px] flex-shrink-0 overflow-y-auto custom-scrollbar">
                 <!-- Timeline items will be injected here -->
             </aside>
 
@@ -343,10 +349,12 @@
         </main>
 
         <!-- Fixed bottom section -->
-        <div class="flex-shrink-0 py-8">
+        <div class="flex-shrink-0 py-4 md:py-8">
             <!-- NEW Selected Products Section & Analysis -->
-            <div id="selected-products-shelf" class="w-full max-w-5xl mx-auto"
-        <!-- Content will be dynamically inserted here -->
+            <div id="selected-products-shelf" class="w-full max-w-5xl mx-auto">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+        </div>
     </div>
 
 
@@ -412,7 +420,7 @@
             speaker: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><circle cx="12" cy="14" r="4"></circle><line x1="12" y1="6" x2="12.01" y2="6"></line></svg>`,
             tv: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>`,
             pencil: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`,
-            mouse: `<svg xmlns="http="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="7"></rect><path d="M12 6v4"></path></svg>`,
+            mouse: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="7"></rect><path d="M12 6v4"></path></svg>`,
             tag: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z"></path><circle cx="12" cy="12" r="1.5"></circle></svg>`,
             default: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>`,
         };
@@ -460,7 +468,7 @@
                     <div class="p-4 border-b border-white/20">
                          <h3 class="text-3xl font-bold text-gray-800">${year}</h3>
                     </div>
-                    <div class="px-6 py-4 grid grid-cols-2 gap-x-8 gap-y-4">
+                    <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                         ${productsByYear[year].map(product => {
                             const uniqueId = `chk-${year}-${product.replace(/[^a-zA-Z0-9]/g, '-')}`;
                             return `
@@ -569,7 +577,7 @@
             }
 
             const shelfHTML = `
-            <div class="glass-card p-6 max-h-[400px] overflow-y-scroll custom-scrollbar">
+            <div class="glass-card p-6 overflow-y-auto custom-scrollbar">
                 <div>
                     ${titleHTML}
                     ${countHTML}
@@ -590,8 +598,12 @@
             productShelf.innerHTML = shelfHTML;
             productShelf.classList.add('visible');
             
+            // --- ✨ 新增部分: 根據商品數量決定是否展開卡片 ---
             if (allProducts.length > 0) {
+                productShelf.classList.add('expanded');
                 document.getElementById('analyze-btn').addEventListener('click', triggerAIAnalysis);
+            } else {
+                productShelf.classList.remove('expanded');
             }
         }
 
