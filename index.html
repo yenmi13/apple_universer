@@ -512,13 +512,98 @@
             }
         }
 
-        async function triggerAIAnalysis() {
+        // 預設的 20 個分析結果
+        const predefinedAnalyses = [
+            {
+                title: "蘋果生態系統收藏家",
+                description: "你就像一位數位時代的收藏家，對每一代 Apple 產品都有著深深的迷戀。從 iPhone 到 MacBook，你的桌面就是一個小型的蘋果博物館。你相信科技不只是工具，更是生活美學的延伸。"
+            },
+            {
+                title: "極簡主義科技達人",
+                description: "你的產品選擇展現了對簡約設計的追求。每一個設備都經過深思熟慮，你不追求數量，而是追求品質。你相信「少即是多」的哲學，讓科技融入生活而不是主導生活。"
+            },
+            {
+                title: "創意工作者的數位夥伴",
+                description: "你的設備組合顯示你是一位真正的創意工作者。從 iPad Pro 到 MacBook，每一個選擇都是為了釋放你的創造力。你用科技來表達想法，而不是被科技束縛。"
+            },
+            {
+                title: "行動辦公室建築師",
+                description: "你的產品清單就像一個完美的行動辦公室藍圖。無論走到哪裡，你都能保持高效率的工作狀態。你是那種能在咖啡廳裡完成重要專案的現代遊牧工作者。"
+            },
+            {
+                title: "音樂與影像的追求者",
+                description: "從 AirPods 到 HomePod，你對音質的要求展現了對美好聲音的執著。你相信好的音樂和影像能夠觸動靈魂，而你的設備選擇正是這種信念的體現。"
+            },
+            {
+                title: "健康生活的數位教練",
+                description: "Apple Watch 在你的生活中扮演著重要角色，你用科技來監控和改善自己的健康狀況。你是那種會為了完成運動圓環而多走幾步路的人，科技讓你更了解自己。"
+            },
+            {
+                title: "早期採用者的冒險精神",
+                description: "你總是第一批嘗試新科技的人。從第一代產品到最新發布，你的勇氣和好奇心讓你成為科技界的探險家。你相信創新需要有人先踏出第一步。"
+            },
+            {
+                title: "專業工具的精準選擇者",
+                description: "你的每一個設備都有明確的用途和目標。你不是為了擁有而購買，而是為了解決特定問題而選擇。你是效率和實用性的完美結合體。"
+            },
+            {
+                title: "家庭娛樂系統的策劃者",
+                description: "Apple TV 和 HomePod 的組合顯示你重視家庭時光的品質。你用科技來創造溫馨的家庭氛圍，讓每個週末都變成小型的家庭影院體驗。"
+            },
+            {
+                title: "學習成長的終身實踐者",
+                description: "你的設備選擇反映了對知識和成長的渴望。無論是閱讀、學習還是創作，你總是在尋找更好的方式來提升自己。科技是你成長路上的最佳夥伴。"
+            },
+            {
+                title: "社交連結的橋樑建造者",
+                description: "你用 Apple 產品來維繫人際關係，分享生活中的美好時刻。從 FaceTime 通話到 AirDrop 分享，你讓科技成為連接人心的橋樑。"
+            },
+            {
+                title: "時尚科技的品味達人",
+                description: "你的產品選擇展現了對設計美學的獨特品味。每一個設備都不只是工具，更是你個人風格的延伸。你相信科技也可以很時尚。"
+            },
+            {
+                title: "效率優化的系統工程師",
+                description: "你的設備配置就像一個精密的系統，每個元件都有其特定功能。你追求工作流程的完美優化，讓每一分鐘都發揮最大價值。"
+            },
+            {
+                title: "數位生活的平衡大師",
+                description: "你懂得如何在數位世界和現實生活之間找到完美平衡。你的設備選擇反映了對生活品質的重視，科技為你服務，而不是相反。"
+            },
+            {
+                title: "創新思維的實驗家",
+                description: "你總是在尋找新的方式來使用你的設備。從工作到娛樂，你不斷探索科技的可能性。你的創新思維讓平凡的工具變成非凡的創作媒介。"
+            },
+            {
+                title: "品質生活的追求者",
+                description: "你相信好的工具能夠提升生活品質。你的每一次購買都是對更好生活的投資。你不只是在買產品，更是在買一種生活方式。"
+            },
+            {
+                title: "數位原住民的現代詮釋",
+                description: "你天生就懂得如何與科技和諧共處。你的設備使用方式展現了新世代對科技的自然理解。你是數位時代的原住民，科技就是你的母語。"
+            },
+            {
+                title: "極致體驗的追尋者",
+                description: "你不滿足於普通的使用體驗，總是在尋找更好、更流暢、更完美的解決方案。你的設備選擇反映了對卓越的不懈追求。"
+            },
+            {
+                title: "生活美學的實踐者",
+                description: "你的 Apple 產品不只是工具，更是生活美學的體現。從桌面的整齊排列到設備的精心搭配，你用科技來創造美好的生活環境。"
+            },
+            {
+                title: "未來生活的先行者",
+                description: "你的設備選擇總是領先時代一步。你不只是在使用現在的科技，更是在體驗未來的生活方式。你是那個總是能預見下一個趨勢的人。"
+            }
+        ];
+
+        function triggerAIAnalysis() {
             const allProducts = Object.values(ownedProducts).flatMap(set => Array.from(set));
             if (allProducts.length === 0) return;
             
             const analysisContainer = document.getElementById('analysis-container');
             if (!analysisContainer) return;
 
+            // 顯示載入動畫
             analysisContainer.innerHTML = `
                 <div class="text-center">
                     <div class="flex items-center justify-center">
@@ -530,49 +615,42 @@
                     </div>
                 </div>`;
 
-            const apiKey = ""; // Canvas will provide the key
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            // 模擬 AI 分析時間
+            setTimeout(() => {
+                // 根據產品數量和類型選擇合適的分析結果
+                let selectedAnalysis;
+                
+                // 根據產品特徵選擇分析結果
+                const hasWatch = allProducts.some(p => p.toLowerCase().includes('watch'));
+                const hasProProducts = allProducts.some(p => p.toLowerCase().includes('pro'));
+                const hasAirPods = allProducts.some(p => p.toLowerCase().includes('airpods'));
+                const hasHomePod = allProducts.some(p => p.toLowerCase().includes('homepod'));
+                const hasAppleTV = allProducts.some(p => p.toLowerCase().includes('apple tv'));
+                const hasMacBook = allProducts.some(p => p.toLowerCase().includes('macbook'));
+                const hasIPad = allProducts.some(p => p.toLowerCase().includes('ipad'));
+                const productCount = allProducts.length;
 
-            const systemPrompt = "你是一位風趣幽默的科技評論家，專門分析人們的消費習慣和個性。你的語氣應該是輕鬆、有趣且帶有科技宅男感。請根據使用者擁有的 Apple 產品清單（包含年份）以及對應年份的 Apple 官方標語，為他們生成一段約 100-150 字的獨特人格分析，並給予一個有趣的稱號。你的分析需要做到：1.根據他們的產品分析對什麼類型的興趣喜好1. 將使用者擁有的產品年份與該年標語巧妙結合。2. 根據產品的屬性（如 Pro 型號、便攜性、影音功能等）推斷並分析使用者的興趣。你的回覆格式應該是：第一行為稱號（用粗體 H1 標題），第二行為分析內容（用段落 P 標籤）。請用繁體中文回答。";
-            
-            const selectedProductsAndSlogans = {};
-            for (const year in ownedProducts) {
-                if (ownedProducts[year].size > 0) {
-                    selectedProductsAndSlogans[year] = {
-                        products: Array.from(ownedProducts[year]),
-                        slogan: slogansByYear[year] || "一個神秘的年份"
-                    };
-                }
-            }
-
-            const userQuery = `這是我擁有的 Apple 產品清單與對應年份的標語：${JSON.stringify(selectedProductsAndSlogans, null, 2)}。請根據這些資訊，分析我的果粉人格與興趣。`;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: userQuery }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] },
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API 請求失敗，狀態碼： ${response.status}`);
-                }
-
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
-                let analysisText = candidate?.content?.parts?.[0]?.text || "抱歉，AI 腦袋當機了，請稍後再試一次！";
-
-                if (!analysisText.includes('<h1>') && !analysisText.includes('<p>')) {
-                   const lines = analysisText.split('\n');
-                   const title = lines[0] || '神秘果粉';
-                   const description = lines.slice(1).join('\n') || 'AI 無法參透你的思維...';
-                   analysisText = `<h1 class="text-4xl font-bold mb-3 tracking-tight text-gray-900">${title}</h1><p class="text-gray-600 text-lg max-w-2xl mx-auto">${description}</p>`;
+                if (hasWatch && productCount >= 5) {
+                    selectedAnalysis = predefinedAnalyses[5]; // 健康生活的數位教練
+                } else if (hasProProducts && (hasMacBook || hasIPad)) {
+                    selectedAnalysis = predefinedAnalyses[2]; // 創意工作者的數位夥伴
+                } else if (hasAirPods && hasHomePod) {
+                    selectedAnalysis = predefinedAnalyses[4]; // 音樂與影像的追求者
+                } else if (hasAppleTV && hasHomePod) {
+                    selectedAnalysis = predefinedAnalyses[8]; // 家庭娛樂系統的策劃者
+                } else if (productCount >= 8) {
+                    selectedAnalysis = predefinedAnalyses[0]; // 蘋果生態系統收藏家
+                } else if (productCount <= 3) {
+                    selectedAnalysis = predefinedAnalyses[1]; // 極簡主義科技達人
+                } else if (hasMacBook && hasIPad) {
+                    selectedAnalysis = predefinedAnalyses[3]; // 行動辦公室建築師
                 } else {
-                     analysisText = analysisText.replace(/<h1>/g, '<h1 class="text-4xl font-bold mb-3 tracking-tight text-gray-900">').replace(/<h2>/g, '<h1 class="text-4xl font-bold mb-3 tracking-tight text-gray-900">').replace(/<p>/g, '<p class="text-gray-600 text-lg max-w-2xl mx-auto">');
+                    // 隨機選擇一個分析結果
+                    const randomIndex = Math.floor(Math.random() * predefinedAnalyses.length);
+                    selectedAnalysis = predefinedAnalyses[randomIndex];
                 }
+
+                const analysisText = `<h1 class="text-4xl font-bold mb-3 tracking-tight text-gray-900">${selectedAnalysis.title}</h1><p class="text-gray-600 text-lg max-w-2xl mx-auto">${selectedAnalysis.description}</p>`;
                 
                 const resultHTML = `
                     <div class="text-center transition-all duration-500 opacity-0 transform translate-y-4">
@@ -588,14 +666,7 @@
                     }
                 }, 50);
 
-            } catch (error) {
-                console.error("Gemini API Error:", error);
-                analysisContainer.innerHTML = `
-                    <div class="text-center">
-                        <h2 class="text-3xl font-bold mb-2 text-red-500">分析失敗</h2>
-                        <p class="text-gray-500 text-lg">無法連接到 AI 大腦。請檢查你的網路連線或稍後再試。</p>
-                    </div>`;
-            }
+            }, 2000); // 2秒的載入時間，讓使用者感受到分析過程
         }
 
         initialize();
@@ -603,5 +674,3 @@
     </script>
 </body>
 </html>
-
-
