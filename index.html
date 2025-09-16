@@ -206,7 +206,7 @@
             opacity: 0;
             position: relative;
             z-index: 10;
-            height: 230px; /* 固定高度，選取前後不變 */
+            height: 230px; /* 桌面：固定高度，選取前後一致 */
             overflow-y: auto; /* 內部捲軸，內容超出時捲動 */
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, height 0.4s ease-in-out; /* 加上高度動畫 */
             transform: translateY(20px);
@@ -218,7 +218,7 @@
         }
 
         #selected-products-shelf .glass-card.result-shown {
-            height: 330px; /* 測出結果後展開 50px */
+            height: 330px; /* 桌面：分析結果展開高度 */
         }
 
 
@@ -359,10 +359,20 @@
                 flex-shrink: 0; /* 確保每個項目寬度不會被壓縮 */
             }
             #selected-products-shelf .glass-card {
-                height: 300px !important; /* 手機版固定高度 */
+                height: 300px !important; /* 手機：固定高度 */
             }
             #selected-products-shelf .glass-card.result-shown {
-                height: 350px !important; /* 手機版展開後高度 */
+                height: 390px !important; /* 手機：展開高度（微調） */
+            }
+        }
+
+        /* 平板尺寸優化（md: 768–1023px） */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #selected-products-shelf .glass-card {
+                height: 260px; /* 平板：固定高度 */
+            }
+            #selected-products-shelf .glass-card.result-shown {
+                height: 360px; /* 平板：展開高度 */
             }
         }
 
@@ -392,7 +402,7 @@
         </main>
 
         <!-- Fixed bottom section -->
-        <div class="flex-shrink-0 py-4 md:py-8">
+        <div class="flex-shrink-0 pt-4 md:pt-8 pb-2 md:pb-6 safe-bottom">
             <!-- NEW Selected Products Section & Analysis -->
             <div id="selected-products-shelf" class="w-full max-w-5xl mx-auto">
                 <!-- Content will be dynamically inserted here -->
@@ -652,8 +662,8 @@
             const shelfBodyHTML = hasProducts ? createShelfBodyWithProducts(allProducts) : createEmptyShelfBody();
 
             const shelfHTML = `
-                <div class="glass-card p-6 flex flex-col custom-scrollbar">
-                    <div class="flex flex-col justify-center items-center mb-4 gap-4 flex-shrink-0">
+            <div class="glass-card px-6 pt-6 pb-0 flex flex-col custom-scrollbar">
+                    <div class="flex flex-col justify-center items-center mb-2 gap-3 flex-shrink-0">
                         <div>${titleHTML}</div>
                         <div>${buttonHTML}</div>
                     </div>
@@ -678,7 +688,7 @@
             `).join('');
 
             return `
-                <div class="flex flex-col md:flex-row gap-8 mt-4">
+                <div class="flex flex-col md:flex-row gap-6 mt-2 h-[calc(100%-60px)]">
                     <div class="md:w-3/5">
                         <div class="selected-product-grid">${productItems}</div>
                     </div>
@@ -690,8 +700,8 @@
 
         function createEmptyShelfBody() {
             return `
-                <div class="flex items-center justify-center text-gray-500 text-lg h-[calc(100%-50px)] p-8 border-2 border-dashed border-gray-400/50 rounded-xl">
-                   <span>還沒有選擇任何產品喔！</span>
+                <div class="flex items-center justify-center text-gray-500 text-lg h-[calc(100%-60px)] p-6 sm:p-8 border-2 border-dashed border-gray-400/60 rounded-xl">
+                    <span>還沒有選擇任何產品喔！</span>
                 </div>`;
         }
 
@@ -756,7 +766,7 @@
             if (!mainCard) return;
 
             // 1. 顯示載入動畫
-            mainCard.className = 'glass-card p-6 flex flex-col custom-scrollbar';
+            mainCard.className = 'glass-card px-6 pt-6 pb-0 flex flex-col custom-scrollbar';
             mainCard.innerHTML = `
                 <div class="w-full h-full flex items-center justify-center">
                     <div class="text-center">
@@ -816,7 +826,7 @@
                         </div>
                     </div>`;
                 
-                mainCard.className = 'glass-card p-6 flex flex-col custom-scrollbar result-shown';
+                mainCard.className = 'glass-card px-6 pt-6 pb-0 flex flex-col custom-scrollbar result-shown';
                 mainCard.innerHTML = resultHTML;
 
                 document.getElementById('retake-btn')?.addEventListener('click', updateShelfUI);
