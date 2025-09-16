@@ -658,7 +658,7 @@
             },
             {
                 title: "行動辦公室建築師",
-                description: "你的產品清單就像一個完美的行動辦公室藍圖。無論走到哪裡，你都能保持高效率的工作狀態。你是那種能在咖啡廳裡完成重要專案的現代遊牧工作者。在選購時，你特別注重設備的便攜性和電池續航力，喜歡輕薄但功能強大的產品。你精通各種生產力工具和雲端服務，善於打造跨設備的無縫工作環境。對你來說，理想的科技產品應該能在任何場合都維持專業水準的工作體驗。"
+                description: "你的產品清單就像一個完美的行動辦公室藍圖。無論走到哪裡，你都能保持高效率的工作狀態。你是那種能在咖啡廳裡完成重要專案的現代遊牧工作者。在選購時，你特別注重設備的便攜性和電池續航力，喜歡輕薄但功能強大的產品。你精通各種生產力工具和雲端服務，善於打造跨設備的無縫工作環境。對你來說，理想的科技產品應該能在任何場合都維持專業水平的工作體驗。"
             },
             {
                 title: "音樂與影像的追求者",
@@ -703,7 +703,7 @@
             },
             {
                 title: "創新思維的實驗家",
-                description: "你從不滿足於設備的預設功能，你的好奇心驅使你不斷探索它們的潛力極限。你喜歡將不同的 App 組合起來，創造出意想不到的工作流程；你會嘗試用 iPhone 拍攝專業級的短片，或是在 iPad 上進行複雜的 3D 建模。在你手中，這些設備不只是消費性電子產品，更像是一個充滿無限可能的實驗室。你享受著發現新用法、新技巧的樂趣，你的創新思維讓這些標準化的工具，蛻變成了充滿個人色彩的非凡創作媒介，不斷地給你帶來驚喜。"
+                description: "你從不滿足於設備的預設功能，你的好奇心驅使你不斷探索它們的潛力極限。你喜歡將不同的 App 組合起來，創造出意想不到的工作流程；你會嘗試用 iPhone 拍攝專業級的短片，或是在 iPad 上進行複雜的 3D 建模。在你手中，這些設備不只是消費性電子產品，更像是一個充滿無限可能的實驗室。你享受著發現新用法、新技巧的樂趣，你的創新思ви讓這些標準化的工具，蛻變成了充滿個人色彩的非凡創作媒介，不斷地給你帶來驚喜。"
             },
             {
                 title: "品質生活的追求者",
@@ -731,18 +731,22 @@
             const allProducts = Object.values(ownedProducts).flatMap(set => Array.from(set));
             if (allProducts.length === 0) return;
             
-            const analysisContainer = document.getElementById('analysis-container');
-            if (!analysisContainer) return;
+            const productShelf = document.getElementById('selected-products-shelf');
+            const mainCard = productShelf.querySelector('.glass-card');
+            if (!mainCard) return;
+
+            // 直接把卡片本身變成置中容器
+            mainCard.className = 'glass-card p-6 flex flex-col items-center justify-center custom-scrollbar';
 
             // 顯示載入動畫
-            analysisContainer.innerHTML = `
+            mainCard.innerHTML = `
                 <div class="text-center">
                     <div class="flex items-center justify-center">
                         <svg class="spinner w-8 h-8 text-gray-700 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <h2 class="text-3xl font-bold text-gray-800">AI 正在深入你的數位靈魂...</h2>
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">AI 正在深入你的數位靈魂...</h2>
                     </div>
                 </div>`;
 
@@ -753,7 +757,7 @@
                 
                 // 根據產品特徵選擇分析結果
                 const hasWatch = allProducts.some(p => p.toLowerCase().includes('watch'));
-                const hasProProducts = all-products.some(p => p.toLowerCase().includes('pro'));
+                const hasProProducts = allProducts.some(p => p.toLowerCase().includes('pro'));
                 const hasAirPods = allProducts.some(p => p.toLowerCase().includes('airpods'));
                 const hasHomePod = allProducts.some(p => p.toLowerCase().includes('homepod'));
                 const hasAppleTV = allProducts.some(p => p.toLowerCase().includes('apple tv'));
@@ -781,17 +785,17 @@
                     selectedAnalysis = predefinedAnalyses[randomIndex];
                 }
 
-                const analysisText = `<h1 class="text-4xl font-bold mb-3 tracking-tight text-gray-900">${selectedAnalysis.title}</h1><p class="text-gray-600 text-lg max-w-2xl mx-auto">${selectedAnalysis.description}</p>`;
+                const analysisText = `<h1 class="text-3xl md:text-4xl font-bold mb-3 tracking-tight text-gray-900">${selectedAnalysis.title}</h1><p class="text-gray-600 text-lg max-w-2xl mx-auto">${selectedAnalysis.description}</p>`;
                 
                 const resultHTML = `
                     <div class="text-center transition-all duration-500 opacity-0 transform translate-y-4">
                         ${analysisText}
                     </div>`;
-
-                analysisContainer.innerHTML = resultHTML;
+                
+                mainCard.innerHTML = resultHTML;
 
                 setTimeout(() => {
-                    const finalCard = analysisContainer.querySelector('div');
+                    const finalCard = mainCard.querySelector('div');
                     if (finalCard) {
                         finalCard.classList.remove('opacity-0', 'translate-y-4');
                     }
