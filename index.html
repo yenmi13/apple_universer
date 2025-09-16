@@ -206,7 +206,7 @@
             opacity: 0;
             position: relative;
             z-index: 10;
-            height: 230px; /* 桌面：固定高度，選取前後一致 */
+            height: 200px; /* 桌面：固定高度（減少底部空白） */
             overflow-y: auto; /* 內部捲軸，內容超出時捲動 */
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, height 0.4s ease-in-out; /* 加上高度動畫 */
             transform: translateY(20px);
@@ -218,7 +218,7 @@
         }
 
         #selected-products-shelf .glass-card.result-shown {
-            height: 330px; /* 桌面：分析結果展開高度 */
+            height: 270px; /* 桌面：分析結果展開 +70px，平滑動畫 */
         }
 
 
@@ -359,20 +359,20 @@
                 flex-shrink: 0; /* 確保每個項目寬度不會被壓縮 */
             }
             #selected-products-shelf .glass-card {
-                height: 300px !important; /* 手機：固定高度 */
+                height: 260px !important; /* 手機：固定高度（減少底部空白） */
             }
             #selected-products-shelf .glass-card.result-shown {
-                height: 390px !important; /* 手機：展開高度（微調） */
+                height: 330px !important; /* 手機：分析結果展開 +70px */
             }
         }
 
         /* 平板尺寸優化（md: 768–1023px） */
         @media (min-width: 768px) and (max-width: 1023px) {
             #selected-products-shelf .glass-card {
-                height: 260px; /* 平板：固定高度 */
+                height: 230px; /* 平板：固定高度（減少底部空白） */
             }
             #selected-products-shelf .glass-card.result-shown {
-                height: 360px; /* 平板：展開高度 */
+                height: 300px; /* 平板：分析結果展開 +70px */
             }
         }
 
