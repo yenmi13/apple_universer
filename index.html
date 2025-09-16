@@ -76,7 +76,7 @@
             position: relative;
             padding-left: 60px;
             padding-right: 20px;
-            min-height: 40px; /* Reduced by 10px */
+            min-height: 50px; /* Increased by 10px */
         }
 
         #timeline-container::before {
@@ -200,7 +200,7 @@
             opacity: 0;
             position: relative;
             z-index: 10;
-            height: 280px; /* 固定高度，選取前後不變 */
+            height: 270px; /* 固定高度，選取前後不變，減少10px */
             overflow-y: auto; /* 內部捲軸，內容超出時捲動 */
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, height 0.4s ease-in-out; /* 加上高度動畫 */
             transform: translateY(20px);
@@ -212,7 +212,7 @@
         }
 
         #selected-products-shelf .glass-card.result-shown {
-            height: 290px; /* 測出結果後展開一點點 */
+            height: 290px; /* 測出結果後展開一點點，減少10px */
         }
 
 
@@ -279,7 +279,7 @@
                 overflow-x: auto;
                 display: flex;
                 flex-direction: row;
-                padding: calc(2rem - 10px) 0; /* Reduced vertical padding */
+                padding: 2rem 0; /* Increased vertical padding */
                 align-items: center; /* 垂直置中圓點 */
                 padding-left: 20px; /* Reset desktop padding */
                 position: relative; /* For the horizontal timeline */
@@ -353,10 +353,10 @@
                 flex-shrink: 0; /* 確保每個項目寬度不會被壓縮 */
             }
             #selected-products-shelf .glass-card {
-                height: 300px !important; /* 手機版固定高度 */
+                height: 290px !important; /* 手機版固定高度，減少10px */
             }
             #selected-products-shelf .glass-card.result-shown {
-                height: 310px !important; /* 手機版展開後高度 */
+                height: 300px !important; /* 手機版展開後高度，減少10px */
             }
         }
 
@@ -828,4 +828,5 @@
     </script>
 </body>
 </html>
+
 
