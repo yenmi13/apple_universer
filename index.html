@@ -76,7 +76,7 @@
             position: relative;
             padding-left: 60px;
             padding-right: 20px;
-            min-height: 50px;
+            min-height: 40px; /* Reduced by 10px */
         }
 
         #timeline-container::before {
@@ -202,13 +202,17 @@
             z-index: 10;
             height: 280px; /* 固定高度，選取前後不變 */
             overflow-y: auto; /* 內部捲軸，內容超出時捲動 */
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, height 0.4s ease-in-out; /* 加上高度動畫 */
             transform: translateY(20px);
         }
 
         #selected-products-shelf.visible .glass-card {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        #selected-products-shelf .glass-card.result-shown {
+            height: 290px; /* 測出結果後展開一點點 */
         }
 
 
@@ -275,7 +279,7 @@
                 overflow-x: auto;
                 display: flex;
                 flex-direction: row;
-                padding: 2rem 0; /* 增加垂直空間給年份文字 */
+                padding: calc(2rem - 10px) 0; /* Reduced vertical padding */
                 align-items: center; /* 垂直置中圓點 */
                 padding-left: 20px; /* Reset desktop padding */
                 position: relative; /* For the horizontal timeline */
@@ -350,6 +354,9 @@
             }
             #selected-products-shelf .glass-card {
                 height: 300px !important; /* 手機版固定高度 */
+            }
+            #selected-products-shelf .glass-card.result-shown {
+                height: 310px !important; /* 手機版展開後高度 */
             }
         }
 
@@ -703,7 +710,7 @@
             },
             {
                 title: "創新思維的實驗家",
-                description: "你從不滿足於設備的預設功能，你的好奇心驅使你不斷探索它們的潛力極限。你喜歡將不同的 App 組合起來，創造出意想不到的工作流程；你會嘗試用 iPhone 拍攝專業級的短片，或是在 iPad 上進行複雜的 3D 建模。在你手中，這些設備不只是消費性電子產品，更像是一個充滿無限可能的實驗室。你享受著發現新用法、新技巧的樂趣，你的創新思ви讓這些標準化的工具，蛻變成了充滿個人色彩的非凡創作媒介，不斷地給你帶來驚喜。"
+                description: "你從不滿足於設備的預設功能，你的好奇心驅使你不斷探索它們的潛力極限。你喜歡將不同的 App 組合起來，創造出意想不到的工作流程；你會嘗試用 iPhone 拍攝專業級的短片，或是在 iPad 上進行複雜的 3D 建模。在你手中，這些設備不只是消費性電子產品，更像是一個充滿無限可能的實驗室。你享受著發現新用法、新技巧的樂趣，你的創新思維讓這些標準化的工具，蛻變成了充滿個人色彩的非凡創作媒介，不斷地給你帶來驚喜。"
             },
             {
                 title: "品質生活的追求者",
@@ -735,10 +742,8 @@
             const mainCard = productShelf.querySelector('.glass-card');
             if (!mainCard) return;
 
-            // 直接把卡片本身變成置中容器
+            // 1. 顯示載入動畫 (置中)
             mainCard.className = 'glass-card p-6 flex flex-col items-center justify-center custom-scrollbar';
-
-            // 顯示載入動畫
             mainCard.innerHTML = `
                 <div class="text-center">
                     <div class="flex items-center justify-center">
@@ -750,7 +755,7 @@
                     </div>
                 </div>`;
 
-            // 模擬 AI 分析時間
+            // 2. 模擬 AI 分析時間
             setTimeout(() => {
                 // 根據產品數量和類型選擇合適的分析結果
                 let selectedAnalysis;
@@ -787,13 +792,27 @@
 
                 const analysisText = `<h1 class="text-3xl md:text-4xl font-bold mb-3 tracking-tight text-gray-900">${selectedAnalysis.title}</h1><p class="text-gray-600 text-lg max-w-2xl mx-auto">${selectedAnalysis.description}</p>`;
                 
+                // 3. 準備結果 HTML (包含重測按鈕)
                 const resultHTML = `
-                    <div class="text-center transition-all duration-500 opacity-0 transform translate-y-4">
-                        ${analysisText}
+                    <div class="text-center transition-all duration-500 opacity-0 transform translate-y-4 w-full h-full flex flex-col">
+                        <div class="flex-grow">
+                            ${analysisText}
+                        </div>
+                        <div class="flex-shrink-0 pt-4">
+                            <button id="retake-btn" class="bg-white/50 hover:bg-white/80 text-gray-700 font-semibold py-2 px-5 rounded-lg transition-colors duration-300 border border-white/30 shadow-sm">
+                                重測一次
+                            </button>
+                        </div>
                     </div>`;
                 
+                // 4. 更新卡片 class 來觸發高度變化並修復文字截斷問題
+                mainCard.className = 'glass-card p-6 flex flex-col custom-scrollbar result-shown';
                 mainCard.innerHTML = resultHTML;
 
+                // 5. 幫新的按鈕加上點擊事件
+                document.getElementById('retake-btn')?.addEventListener('click', updateShelfUI);
+
+                // 6. 漸變動畫
                 setTimeout(() => {
                     const finalCard = mainCard.querySelector('div');
                     if (finalCard) {
